@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - dev
 #env variables
 env:
   #for all jobs we want to use the same db name unless we rename it in another job and override itx
