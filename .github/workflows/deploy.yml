@@ -4,8 +4,21 @@ on:
     branches:
       - main
       - dev
+#env variables
+env:
+  #for all jobs we want to use the same db name unless we rename it in another job and override itx
+  #key
+  #workflow env variable
+  MONGODB_DB_NAME: gha-demo
 jobs:
   test:
+    #only available on this test and not other jobs
+    # job env variable
+    env:
+      MONGODB_CLUSTER_ADDRESS: cluster0.aqczmne.mongodb.net
+      MONGODB_USERNAME: aforbesgil
+      MONGODB_PASSWORD: Mt6Sa1X1WWHH23aI
+      PORT: 8080
     environment: testing
     runs-on: ubuntu-latest
     steps:
@@ -19,15 +32,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Run server
-        run: npm start & npx wait-on http://127.0.0.1:XYZ
+        # output value of env variable
+        run: npm start & npx wait-on http://127.0.0.1:$PORT
       - name: Run tests
         run: npm test
       - name: Output information
-        run: echo "..."
+        run: |
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Output information
-        run: |        
-          echo "..."
+        # MONGODB_USERNAME - not accessible in this job but job above
+        # MONGODB_DB_NAME - accessible as it is a workflow env
+        run: |
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
